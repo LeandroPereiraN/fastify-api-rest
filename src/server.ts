@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
-import swagger from './plugins/swagger.ts'
+import autoload from '@fastify/autoload'
 import type { FastifyInstance, FastifyListenOptions } from 'fastify'
+import path from 'path'
 
 const fastifyListenOptions: FastifyListenOptions = {
   port: parseInt(process.env.FASTIFY_PORT || '3000'),
@@ -9,7 +10,11 @@ const fastifyListenOptions: FastifyListenOptions = {
 
 const fastify: FastifyInstance = Fastify();
 
-fastify.register(swagger)
+
+fastify.register(autoload, {
+  dir: path.join(__dirname, 'plugins'),
+  dirNameRoutePrefix: false,
+})
 
 fastify.listen(fastifyListenOptions, (err: any) => {
   if (err) {
