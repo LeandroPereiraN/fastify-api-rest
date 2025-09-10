@@ -1,8 +1,8 @@
 import fastifyPlugin from 'fastify-plugin'
 import jwt from '@fastify/jwt'
-import type { User } from '../types/User'
+import type { User } from '../types/User.ts'
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import { AuthorizedError } from '../models/errors'
+import { AuthorizedError } from '../models/errors.ts'
 
 export default fastifyPlugin(async (fastify, opts) => {
   fastify.register(jwt, {

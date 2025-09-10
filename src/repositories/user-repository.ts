@@ -1,10 +1,64 @@
 import { NotFoundError } from "../models/errors.ts";
-import { User } from "../types/User.ts";
+import { Credencial, Rol, User } from "../types/User.ts";
+
+const roles: Rol[] = [
+  { id_rol: 1, nombre: 'admin' },
+  { id_rol: 2, nombre: 'user' },
+  { id_rol: 3, nombre: 'guest' }
+];
+
+const passwords: Credencial[] = [
+  {
+    id_usuario: 1,
+    password_hash: 'contraseña'
+  },
+  {
+    id_usuario: 2,
+    password_hash: 'contraseña'
+  },
+  {
+    id_usuario: 3,
+    password_hash: 'contraseña'
+  }
+];
 
 const users: Partial<User>[] = [
-  { id_usuario: 1, nombres: 'Jorge' },
-  { id_usuario: 2, nombres: 'Alberto' },
-  { id_usuario: 3, nombres: 'Juan' }
+  {
+    id_usuario: 1,
+    username: 'admin',
+    email: 'admin@example.com',
+    activo: true,
+    fecha_nacimiento: '1980-01-01',
+    nombres: 'Admin',
+    apellidos: 'Principal',
+    edad: 45,
+    sexo: 'M',
+    roles: [roles[0], roles[1]]
+  },
+  {
+    id_usuario: 2,
+    username: 'usuario1',
+    email: 'user1@example.com',
+    activo: true,
+    fecha_nacimiento: '1995-05-10',
+    nombres: 'Usuario',
+    apellidos: 'Uno',
+    edad: 30,
+    sexo: 'F',
+    roles: [roles[1]]
+  },
+  {
+    id_usuario: 3,
+    username: 'usuario2',
+    email: 'user2@example.com',
+    activo: false,
+    fecha_nacimiento: '2000-03-15',
+    nombres: 'Usuario',
+    apellidos: 'Dos',
+    edad: 25,
+    sexo: 'M',
+    roles: [roles[2]]
+  }
 ]
 let usersCount = users.length;
 
@@ -19,6 +73,17 @@ class UserRepository {
 
   static getUsersByName = (nombres: string) => {
     return users.filter(user => user.nombres?.toLowerCase().includes(nombres.toLowerCase()));
+  }
+
+  static getUserByUsername = (username: string) => {
+    return users.find(user => user.username === username);
+  }
+
+  static async getCredentialByUserId(id_usuario: number): Promise<{ id_usuario: number; password: string } | null> {
+    const password = passwords.find(p => p.id_usuario === id_usuario);
+    if (!password) return null;
+
+    return { id_usuario: password.id_usuario, password: password.password_hash };
   }
 
   static createUser = (user: Omit<User, "id_usuario">) => {
