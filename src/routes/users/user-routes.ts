@@ -29,12 +29,15 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para realizar esta acción.');
       }
     }
-  }, async (req, res) => {
+  }, async (req, res) => {//la hice async
     const query = req.query
     const { nombre } = query;
-    if (!nombre) return UserRepository.getUsers() as User[];
 
-    return UserRepository.getUsersByName(nombre) as User[];
+    //los hice asincronicos
+    
+    if (!nombre) return await UserRepository.getUsers() as User[];
+
+    return await UserRepository.getUsersByName(nombre) as User[];
   })
 
   fastify.get('/usuarios/:id_usuario', {
@@ -70,11 +73,11 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para ver este usuario.');
       }
     }
-  }, (req, res) => {
+  },async (req, res) => {//la hice async
     const { id_usuario } = req.params;
-    const user = UserRepository.getUserById(id_usuario);
+    const user = await UserRepository.getUserById(id_usuario);//asincronicos 
     if (user && user.id_usuario !== undefined) {
-      return user as User;
+      return user;
     }
 
     throw new NotFoundError();
@@ -110,14 +113,14 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para modificar este usuario.');
       }
     }
-  }, (req, res) => {
+  },async (req, res) => {//la hice async
     const { id_usuario } = req.params;
     const { nombres } = req.body;
 
-    const oldUser = UserRepository.getUserById(id_usuario);
+    const oldUser = await UserRepository.getUserById(id_usuario);//la hice async
     if (!oldUser) throw new NotFoundError();
 
-    UserRepository.updateUser(id_usuario, { nombres });
+    await UserRepository.updateUser(id_usuario, { nombres });//la hice async
     res.status(204).send();
   })
 
@@ -145,9 +148,9 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para eliminar usuarios.');
       }
     }
-  }, (req, res) => {
+  },async (req, res) => {//la hice async
     const { id_usuario } = req.params;
-    if (!UserRepository.deleteUser(id_usuario)) {
+    if (! await UserRepository.deleteUser(id_usuario)) {//la hice async
       throw new NotFoundError();
     }
     res.status(204).send();
