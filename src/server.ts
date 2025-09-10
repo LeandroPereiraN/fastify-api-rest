@@ -1,6 +1,9 @@
 import Fastify from 'fastify'
 import swagger from './plugins/swagger.ts'
 import type { FastifyInstance, FastifyListenOptions } from 'fastify'
+import userRoutes from './routes/users/user-routes.ts'
+import authRoutes from './routes/auth/auth-routes.ts'
+import jwt from './plugins/jwt.ts'
 
 const fastifyListenOptions: FastifyListenOptions = {
   port: parseInt(process.env.FASTIFY_PORT || '3000'),
@@ -9,7 +12,10 @@ const fastifyListenOptions: FastifyListenOptions = {
 
 const fastify: FastifyInstance = Fastify();
 
-fastify.register(swagger)
+await fastify.register(swagger)
+await fastify.register(jwt)
+await fastify.register(userRoutes)
+await fastify.register(authRoutes)
 
 fastify.listen(fastifyListenOptions, (err: any) => {
   if (err) {
