@@ -15,12 +15,11 @@ const fastifyListenOptions: FastifyListenOptions = {
 const fastify: FastifyInstance = Fastify();
 await fastify.register(autoload, {
   dir: path.join(__dirname, 'plugins'),
-  dirNameRoutePrefix: false,
 })
 
 await fastify.register(autoload, {
   dir: path.join(__dirname, 'routes'),
-  dirNameRoutePrefix: false,
+  dirNameRoutePrefix: true,
 })
 
 fastify.listen(fastifyListenOptions, (err: any) => {

@@ -1,8 +1,9 @@
 import swagger from '@fastify/swagger'
+import type { FastifySwaggerOptions } from '@fastify/swagger'
 import swaggerui from "@fastify/swagger-ui";
-import type { FastifyPluginAsync } from 'fastify'
+import fp from 'fastify-plugin'
 
-const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
+export default fp<FastifySwaggerOptions>(async (fastify) => {
   await fastify.register(swagger, {
     openapi: {
       openapi: '3.0.0',
@@ -16,10 +17,6 @@ const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
           url: 'http://localhost:3000',
           description: 'Development server'
         }
-      ],
-      tags: [
-        { name: 'usuarios', description: 'Usuarios end points.' },
-        { name: 'auth', description: 'Auth end points.' },
       ],
       components: {
         securitySchemes: {
@@ -52,7 +49,4 @@ const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
     transformSpecification: (swaggerObject, request, reply) => { return swaggerObject },
     transformSpecificationClone: true
   })
-}
-
-export default swaggerPlugin
-
+})
