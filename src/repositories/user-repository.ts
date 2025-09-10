@@ -1,6 +1,7 @@
+import { query } from "../db/db.ts";
 import { NotFoundError } from "../models/errors.ts";
-import { Credencial, Rol, User } from "../types/User.ts";
-
+import { User } from "../types/User.ts";
+/*
 const roles: Rol[] = [
   { id_rol: 1, nombre: 'admin' },
   { id_rol: 2, nombre: 'user' },
@@ -61,59 +62,162 @@ const users: Partial<User>[] = [
   }
 ]
 let usersCount = users.length;
+*/ //Hardcodeado , ahora usamos la db
 
 class UserRepository {
-  static getUsers = () => {
-    return users;
+  static async authenticate(username: string, password: string): Promise<User | null> {
+  const sqlAuth = `
+    SELECT U.*, array_agg(R.nombre) AS roles
+    FROM usuarios U
+    JOIN credenciales C ON C.id_usuario = U.id_usuario
+    JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+    JOIN roles R ON R.id_rol = UR.id_rol
+    WHERE U.username = $1
+      AND C.password_hash = crypt($2, C.password_hash)
+    GROUP BY U.id_usuario
+  `;
+
+  const { rows: users } = await query(sqlAuth, [username, password]);
+  return users[0] || null;
   }
 
-  static getUserById = (id_usuario: number) => {
-    return users.find(user => user.id_usuario === id_usuario);
+  static async getUsers(): Promise<User[]> {
+  const sqlGetUsers = `
+    SELECT U.*, array_agg(R.nombre) AS roles
+    FROM usuarios U
+    JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+    JOIN roles R ON R.id_rol = UR.id_rol
+    GROUP BY U.id_usuario
+  `;
+
+  const { rows: users } = await query(sqlGetUsers);
+  return users;
   }
 
-  static getUsersByName = (nombres: string) => {
-    return users.filter(user => user.nombres?.toLowerCase().includes(nombres.toLowerCase()));
+  static async getUserById(id_usuario: number): Promise<User | null> {
+  const sqlUserById = `
+    SELECT U.*, array_agg(R.nombre) AS roles
+    FROM usuarios U
+    JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+    JOIN roles R ON R.id_rol = UR.id_rol
+    WHERE U.id_usuario = $1
+    GROUP BY U.id_usuario
+  `;
+
+  const { rows: users } = await query(sqlUserById, [id_usuario]);
+  return users[0] || null;
   }
 
-  static getUserByUsername = (username: string) => {
-    return users.find(user => user.username === username);
+  static async getUsersByName(nombres: string): Promise<User[]> {
+  const sqlGetUserName = `
+    SELECT U.*, array_agg(R.nombre) AS roles
+    FROM usuarios U
+    LEFT JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+    LEFT JOIN roles R ON R.id_rol = UR.id_rol
+    WHERE LOWER(U.nombres) LIKE LOWER($1)
+    GROUP BY U.id_usuario
+  `;
+  const { rows: users } = await query(sqlGetUserName, [`%${nombres}%`]);
+  return users;
   }
 
-  static async getCredentialByUserId(id_usuario: number): Promise<{ id_usuario: number; password: string } | null> {
-    const password = passwords.find(p => p.id_usuario === id_usuario);
-    if (!password) return null;
-
-    return { id_usuario: password.id_usuario, password: password.password_hash };
+  static async getUserByUsername(username: string): Promise<User | null> {
+    const sqlGetUsername = `
+      SELECT U.*, array_agg(R.nombre) AS roles
+      FROM usuarios U
+      JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+      JOIN roles R ON R.id_rol = UR.id_rol
+      WHERE U.username = $1
+      GROUP BY U.id_usuario
+    `;
+    const { rows : users } = await query(sqlGetUsername, [username]);
+    return users[0] || null;
   }
 
-  static createUser = (user: Omit<User, "id_usuario">) => {
-    usersCount++;
-    const newUser = {
-      id_usuario: usersCount,
-      ...user
+  static async getCredentialByUserId(id_usuario: number): Promise<Credential | null> {
+    const sqlCredByUserId = `
+      SELECT id_usuario, password_hash
+      FROM credenciales
+      WHERE id_usuario = $1
+    `;
+    const { rows: users } = await query(sqlCredByUserId, [id_usuario]);
+    return users[0] || null;
+  }
+
+  static async createUser(
+    user: Omit<User, "id_usuario" | "fecha_registro" | "reputacion" | "roles"> & { password: string }
+  ): Promise<User> {
+    try {
+      await query("BEGIN");
+
+      const insertUserSQL = `
+        INSERT INTO usuarios
+          (username, email, activo, fecha_nacimiento, nombres, apellidos, edad, sexo, foto_url)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id_usuario
+      `;
+
+      const { rows: inserted } = await query(insertUserSQL, [
+        user.username,
+        user.email,
+        user.activo ?? false,
+        user.fecha_nacimiento,
+        user.nombres,
+        user.apellidos,
+        user.edad,
+        user.sexo,
+        user.foto_url ?? null
+      ]);
+
+      const id_usuario = inserted[0].id_usuario;
+
+      await query( // credenciales
+        `INSERT INTO credenciales (id_usuario, password_hash)
+        VALUES ($1, crypt($2, gen_salt('bf')))`,
+        [id_usuario, user.password]
+      );
+
+      await query(// rol por defecto
+        `INSERT INTO usuarios_roles (id_usuario, id_rol)
+        SELECT $1, id_rol FROM roles WHERE nombre = 'user'`,
+        [id_usuario]
+      );
+
+      await query("COMMIT");
+      return (await this.getUserById(id_usuario))!;
+    } catch (err) {
+      await query("ROLLBACK");
+      throw err;
     }
-
-    users.push(newUser);
-    return newUser;
   }
 
-  static updateUser = (id_usuario: number, newUser: Partial<Omit<User, "id_usuario">>) => {
-    const user = this.getUserById(id_usuario);
-    if (user) {
-      Object.assign(user, newUser);
-      return user;
-    }
 
-    throw new NotFoundError();
+  static async updateUser(id_usuario: number, newUser: Partial<User>): Promise<User> {
+    const fields = Object.keys(newUser);
+    if (!fields.length) throw new NotFoundError();
+
+    const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(", ");
+    const values = Object.values(newUser);
+
+    const sqlUpdateUser = `
+      UPDATE usuarios
+      SET ${setClause}
+      WHERE id_usuario = $${fields.length + 1}
+      RETURNING *
+    `;
+
+    const { rows: users } = await query(sqlUpdateUser, [...values, id_usuario]);
+    if (!users[0]) throw new NotFoundError();
+
+    return users[0];
   }
 
-  static deleteUser = (id_usuario: number) => {
-    const userIndex = users.findIndex(user => user.id_usuario === id_usuario);
-    if (userIndex !== -1) {
-      users.splice(userIndex, 1);
-      return true;
-    }
-    return false;
+  static async deleteUser(id_usuario: number): Promise<boolean> {
+    const { rowCount } = await query(
+      `DELETE FROM usuarios WHERE id_usuario = $1`,
+      [id_usuario]
+    );
+    return rowCount > 0;
   }
 }
 
