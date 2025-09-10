@@ -1,4 +1,4 @@
-import { Pool, PoolClient } from "pg";//pool por las querys
+import { Pool } from "pg";//pool por las querys
 
 //ejemplo de pool basica de node-postrgres
 const pool = new Pool({
@@ -18,6 +18,5 @@ pool.on("error", (err) => {
   console.error("Base de datos hay un error en pool:", err);
 });
 
-export default {
-  //aca iria todo
-};
+//export para ejecutar las querys
+export const query = (text: string, params?: any[]) => pool.query(text, params);
