@@ -8,6 +8,7 @@
 ## Instalación de Dependencias  
 1. Primero necesitamos tener **Node.js** para **windows** usando **volta** y **npm** instalado.  
 2. despues de clonar el repo , hacemos **npm install** (esto instalará todas las dependencias necesarias)
+3. Crear un archivo **.env** en la raiz del proyecto, en base al archivo **.env.example**
 
 ## Levantar la base de datos de PostgreSQL con Docker
 Necesitamos tener Docker instalado. Después, se debe ejecutar el comando **docker compose up** en la raíz del proyecto.
