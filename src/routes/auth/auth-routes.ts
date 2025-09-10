@@ -50,9 +50,9 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         201: User
       }
     }
-  }, (req, res) => {
+  }, async (req, res) => {
     const user = req.body;
-    const newUser = UserRepository.createUser(user);
+    const newUser = await UserRepository.createUser(user);
 
     res.status(201).send(newUser);
   })

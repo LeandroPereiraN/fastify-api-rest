@@ -13,12 +13,12 @@ const fastifyListenOptions: FastifyListenOptions = {
 }
 
 const fastify: FastifyInstance = Fastify();
-fastify.register(autoload, {
+await fastify.register(autoload, {
   dir: path.join(__dirname, 'plugins'),
   dirNameRoutePrefix: false,
 })
 
-fastify.register(autoload, {
+await fastify.register(autoload, {
   dir: path.join(__dirname, 'routes'),
   dirNameRoutePrefix: false,
 })
@@ -28,4 +28,8 @@ fastify.listen(fastifyListenOptions, (err: any) => {
     fastify.close()
     process.exit(1)
   }
+})
+
+fastify.after(() => {
+  console.log(fastify.printRoutes())
 })
