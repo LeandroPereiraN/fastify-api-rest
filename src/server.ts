@@ -29,7 +29,3 @@ fastify.listen(fastifyListenOptions, (err: any) => {
     process.exit(1)
   }
 })
-
-fastify.after(() => {
-  console.log(fastify.printRoutes())
-})

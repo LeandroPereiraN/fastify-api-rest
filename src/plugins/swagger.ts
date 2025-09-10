@@ -3,7 +3,7 @@ import swaggerui from "@fastify/swagger-ui";
 import type { FastifyPluginAsync } from 'fastify'
 
 const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
-    await fastify.register(swagger, {
+  await fastify.register(swagger, {
     openapi: {
       openapi: '3.0.0',
       info: {
@@ -18,8 +18,8 @@ const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
         }
       ],
       tags: [
-        { name: 'root', description: 'Root end points.' },
-        { name: 'examples', description: 'Examples end points.' },
+        { name: 'usuarios', description: 'Usuarios end points.' },
+        { name: 'auth', description: 'Auth end points.' },
       ],
       components: {
         securitySchemes: {
