@@ -2,9 +2,10 @@ import Fastify from 'fastify'
 import autoload from '@fastify/autoload'
 import type { FastifyInstance, FastifyListenOptions } from 'fastify'
 import path from 'path'
-import userRoutes from './routes/users/user-routes.ts'
-import authRoutes from './routes/auth/auth-routes.ts'
-import jwt from './plugins/jwt.ts'
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const fastifyListenOptions: FastifyListenOptions = {
   port: parseInt(process.env.FASTIFY_PORT || '3000'),
@@ -12,16 +13,15 @@ const fastifyListenOptions: FastifyListenOptions = {
 }
 
 const fastify: FastifyInstance = Fastify();
-
-
 fastify.register(autoload, {
   dir: path.join(__dirname, 'plugins'),
   dirNameRoutePrefix: false,
 })
-await fastify.register(swagger)
-await fastify.register(jwt)
-await fastify.register(userRoutes)
-await fastify.register(authRoutes)
+
+fastify.register(autoload, {
+  dir: path.join(__dirname, 'routes'),
+  dirNameRoutePrefix: false,
+})
 
 fastify.listen(fastifyListenOptions, (err: any) => {
   if (err) {
