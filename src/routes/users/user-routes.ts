@@ -5,7 +5,7 @@ import { NotFoundError, PermissionError } from "../../models/errors.ts";
 import UserRepository from "../../repositories/user-repository.ts";
 
 const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
-  fastify.get('/usuarios', {
+  fastify.get('/', {
     schema: {
       summary: 'Devuelve una lista de usuarios',
       description: 'Devuelve el id, nombre e isAdmin',
@@ -38,7 +38,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     return await UserRepository.getUsersByName(nombre) as User[];
   })
 
-  fastify.get('/usuarios/:id_usuario', {
+  fastify.get('/:id_usuario', {
     schema: {
       summary: 'Devuelve un usuario por su ID',
       description: 'Devuelve el id, nombre e isAdmin del usuario. Solo disponible para administradores o el propio usuario.',
@@ -65,7 +65,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       const user = req.user as User;
       const { id_usuario } = req.params;
       const isAdmin = user?.roles?.some(rol => rol.nombre === 'admin');
-      const isSelf = user?.id_usuario === id_usuario;
+      const isSelf = user?.id_usuario == id_usuario;
 
       if (!isAdmin && !isSelf) {
         throw new PermissionError('No tienes permisos para ver este usuario.');
@@ -81,7 +81,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     throw new NotFoundError();
   })
 
-  fastify.put('/usuarios/:id_usuario', {
+  fastify.put('/:id_usuario', {
     schema: {
       summary: 'Actualiza un usuario por su ID',
       description: 'Actualiza el nombre del usuario. Solo disponible para administradores o el propio usuario.',
@@ -122,7 +122,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     res.status(204).send();
   })
 
-  fastify.delete('/usuarios/:id_usuario', {
+  fastify.delete('/:id_usuario', {
     schema: {
       summary: 'Elimina un usuario por su ID',
       description: 'Elimina un usuario de la base de datos. Solo disponible para administradores.',

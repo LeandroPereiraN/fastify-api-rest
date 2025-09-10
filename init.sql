@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email CITEXT  NOT NULL UNIQUE,
     activo BOOLEAN NOT NULL DEFAULT FALSE,
     fecha_registro TIMESTAMP NOT NULL DEFAULT NOW(),
-    reputacion NUMERIC(5,2) DEFAULT 0,
+    reputacion NUMERIC(5,2) NOT NULL DEFAULT 0,
     preferencias JSONB,   
 
     fecha_nacimiento DATE NOT NULL,
