@@ -137,15 +137,15 @@ class UserRepository {
   }
 
   static async createUser(
-    user: Omit<User, "id_usuario" | "fecha_registro" | "reputacion" | "roles"> & { password: string }
+    user: Omit<User, "id_usuario" | "fecha_registro"> & { password: string; roles?: string[] }
   ): Promise<User> {
     try {
       await query("BEGIN");
 
       const insertUserSQL = `
         INSERT INTO usuarios
-          (username, email, activo, fecha_nacimiento, nombres, apellidos, edad, sexo, foto_url)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          (username, email, activo, fecha_nacimiento, nombres, apellidos, edad, sexo, foto_url, reputacion)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id_usuario
       `;
 
@@ -158,22 +158,34 @@ class UserRepository {
         user.apellidos,
         user.edad,
         user.sexo,
-        user.foto_url ?? null
+        user.foto_url ?? null,
+        user.reputacion ?? 0
       ]);
 
       const id_usuario = inserted[0].id_usuario;
 
-      await query( // credenciales
+      await query(
         `INSERT INTO credenciales (id_usuario, password_hash)
         VALUES ($1, crypt($2, gen_salt('bf')))`,
         [id_usuario, user.password]
       );
 
-      await query(// rol por defecto
-        `INSERT INTO usuarios_roles (id_usuario, id_rol)
-        SELECT $1, id_rol FROM roles WHERE nombre = 'user'`,
-        [id_usuario]
-      );
+      // Insert roles if provided, otherwise assign default 'user' role
+      if (user.roles && user.roles.length > 0) {
+        for (const roleName of user.roles) {
+          await query(
+            `INSERT INTO usuarios_roles (id_usuario, id_rol)
+             SELECT $1, id_rol FROM roles WHERE nombre = $2`,
+            [id_usuario, roleName]
+          );
+        }
+      } else {
+        await query(
+          `INSERT INTO usuarios_roles (id_usuario, id_rol)
+           SELECT $1, id_rol FROM roles WHERE nombre = 'user'`,
+          [id_usuario]
+        );
+      }
 
       await query("COMMIT");
       return (await this.getUserById(id_usuario))!;

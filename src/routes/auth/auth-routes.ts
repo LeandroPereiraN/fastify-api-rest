@@ -45,14 +45,24 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       summary: 'Crea un nuevo usuario',
       description: 'Crea un nuevo usuario en la base de datos',
       tags: ["auth"],
-      body: Type.Omit(User, ["id_usuario"]),
+      body: Type.Intersect([
+        Type.Omit(User, ["id_usuario"]),
+        Type.Object({
+          password: Type.String({ minLength: 6 }),
+          roles: Type.Optional(Type.Array(Type.String()))
+        })
+      ]),
       response: {
         201: User
       }
     }
   }, async (req, res) => {
-    const user = req.body;
-    const newUser = await UserRepository.createUser(user);
+    const { password, roles, ...userData } = req.body;
+    const newUser = await UserRepository.createUser({
+      ...userData,
+      password,
+      roles
+    });
 
     res.status(201).send(newUser);
   })
