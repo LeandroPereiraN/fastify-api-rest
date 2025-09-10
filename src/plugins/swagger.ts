@@ -1,10 +1,9 @@
 import swagger from '@fastify/swagger'
-import type { FastifySwaggerOptions } from '@fastify/swagger'
 import swaggerui from "@fastify/swagger-ui";
-import fp from 'fastify-plugin'
+import type { FastifyPluginAsync } from 'fastify'
 
-export default fp<FastifySwaggerOptions>(async (fastify) => {
-  await fastify.register(swagger, {
+const swaggerPlugin: FastifyPluginAsync = async (fastify, opts) => {
+    await fastify.register(swagger, {
     openapi: {
       openapi: '3.0.0',
       info: {
@@ -53,4 +52,7 @@ export default fp<FastifySwaggerOptions>(async (fastify) => {
     transformSpecification: (swaggerObject, request, reply) => { return swaggerObject },
     transformSpecificationClone: true
   })
-})
+}
+
+export default swaggerPlugin
+

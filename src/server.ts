@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
-import swagger from './plugins/swagger.ts'
+import autoload from '@fastify/autoload'
 import type { FastifyInstance, FastifyListenOptions } from 'fastify'
+import path from 'path'
 import userRoutes from './routes/users/user-routes.ts'
 import authRoutes from './routes/auth/auth-routes.ts'
 import jwt from './plugins/jwt.ts'
@@ -12,6 +13,11 @@ const fastifyListenOptions: FastifyListenOptions = {
 
 const fastify: FastifyInstance = Fastify();
 
+
+fastify.register(autoload, {
+  dir: path.join(__dirname, 'plugins'),
+  dirNameRoutePrefix: false,
+})
 await fastify.register(swagger)
 await fastify.register(jwt)
 await fastify.register(userRoutes)
