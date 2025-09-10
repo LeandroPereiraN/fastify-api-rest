@@ -4,11 +4,11 @@ import UserRepository from "./user-repository.ts";
 
 class AuthRepository {
   static async login(username: string, password: string): Promise<User> {
-    const user = UserRepository.getUserByUsername(username);
+    const user = await UserRepository.getUserByUsername(username);
     if (!user || !user.id_usuario) throw new NotFoundError("Usuario no encontrado");
 
-    const userPassword = await UserRepository.getCredentialByUserId(user.id_usuario);
-    if (!userPassword || userPassword.password !== password) throw new AuthorizedError("Contraseña incorrecta");
+    const isAuthenticated = await UserRepository.authenticate(username, password);
+    if (!isAuthenticated) throw new AuthorizedError("Contraseña incorrecta");
 
     return user as User;
   }

@@ -48,7 +48,6 @@ Para levantar el proyecto debemos ejecutar el comando **npm run dev** en la raí
   - getUserByid
   - getUserByname - se usa like y % para la busqueda parcial
   - getUserByusername
-  - getcredentialbyuserid - obtendria el hash de constraseña para login
   
 </details>
 

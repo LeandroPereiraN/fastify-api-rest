@@ -1,6 +1,6 @@
 import { query } from "../db/db.ts";
 import { NotFoundError } from "../models/errors.ts";
-import { User } from "../types/User.ts";
+import { Credencial, User } from "../types/User.ts";
 /*
 const roles: Rol[] = [
   { id_rol: 1, nombre: 'admin' },
@@ -133,17 +133,6 @@ class UserRepository {
     `;
 
     const { rows: users } = await query(sqlGetUsername, [username]);
-    return users[0] || null;
-  }
-
-  static async getCredentialByUserId(id_usuario: number): Promise<Credential | null> {
-    const sqlCredByUserId = `
-      SELECT id_usuario, password_hash
-      FROM credenciales
-      WHERE id_usuario = $1
-    `;
-
-    const { rows: users } = await query(sqlCredByUserId, [id_usuario]);
     return users[0] || null;
   }
 
