@@ -66,59 +66,60 @@ let usersCount = users.length;
 
 class UserRepository {
   static async authenticate(username: string, password: string): Promise<User | null> {
-  const sqlAuth = `
-    SELECT U.*, array_agg(R.nombre) AS roles
-    FROM usuarios U
-    JOIN credenciales C ON C.id_usuario = U.id_usuario
-    JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
-    JOIN roles R ON R.id_rol = UR.id_rol
-    WHERE U.username = $1
-      AND C.password_hash = crypt($2, C.password_hash)
-    GROUP BY U.id_usuario
-  `;
+    const sqlAuth = `
+      SELECT U.*, array_agg(R.nombre) AS roles
+      FROM usuarios U
+      JOIN credenciales C ON C.id_usuario = U.id_usuario
+      JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+      JOIN roles R ON R.id_rol = UR.id_rol
+      WHERE U.username = $1
+        AND C.password_hash = crypt($2, C.password_hash)
+      GROUP BY U.id_usuario
+    `;
 
-  const { rows: users } = await query(sqlAuth, [username, password]);
-  return users[0] || null;
+    const { rows: users } = await query(sqlAuth, [username, password]);
+    return users[0] || null;
   }
 
   static async getUsers(): Promise<User[]> {
-  const sqlGetUsers = `
-    SELECT U.*, array_agg(R.nombre) AS roles
-    FROM usuarios U
-    JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
-    JOIN roles R ON R.id_rol = UR.id_rol
-    GROUP BY U.id_usuario
-  `;
+    const sqlGetUsers = `
+      SELECT U.*, array_agg(R.nombre) AS roles
+      FROM usuarios U
+      JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+      JOIN roles R ON R.id_rol = UR.id_rol
+      GROUP BY U.id_usuario
+    `;
 
-  const { rows: users } = await query(sqlGetUsers);
-  return users;
+    const { rows: users } = await query(sqlGetUsers);
+    return users;
   }
 
   static async getUserById(id_usuario: number): Promise<User | null> {
-  const sqlUserById = `
-    SELECT U.*, array_agg(R.nombre) AS roles
-    FROM usuarios U
-    JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
-    JOIN roles R ON R.id_rol = UR.id_rol
-    WHERE U.id_usuario = $1
-    GROUP BY U.id_usuario
-  `;
+    const sqlUserById = `
+      SELECT U.*, array_agg(R.nombre) AS roles
+      FROM usuarios U
+      JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+      JOIN roles R ON R.id_rol = UR.id_rol
+      WHERE U.id_usuario = $1
+      GROUP BY U.id_usuario
+    `;
 
-  const { rows: users } = await query(sqlUserById, [id_usuario]);
-  return users[0] || null;
+    const { rows: users } = await query(sqlUserById, [id_usuario]);
+    return users[0] || null;
   }
 
   static async getUsersByName(nombres: string): Promise<User[]> {
-  const sqlGetUserName = `
-    SELECT U.*, array_agg(R.nombre) AS roles
-    FROM usuarios U
-    LEFT JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
-    LEFT JOIN roles R ON R.id_rol = UR.id_rol
-    WHERE LOWER(U.nombres) LIKE LOWER($1)
-    GROUP BY U.id_usuario
-  `;
-  const { rows: users } = await query(sqlGetUserName, [`%${nombres}%`]);
-  return users;
+    const sqlGetUserName = `
+      SELECT U.*, array_agg(R.nombre) AS roles
+      FROM usuarios U
+      LEFT JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
+      LEFT JOIN roles R ON R.id_rol = UR.id_rol
+      WHERE LOWER(U.nombres) LIKE LOWER($1)
+      GROUP BY U.id_usuario
+    `;
+
+    const { rows: users } = await query(sqlGetUserName, [`%${nombres}%`]);
+    return users;
   }
 
   static async getUserByUsername(username: string): Promise<User | null> {
@@ -130,7 +131,8 @@ class UserRepository {
       WHERE U.username = $1
       GROUP BY U.id_usuario
     `;
-    const { rows : users } = await query(sqlGetUsername, [username]);
+
+    const { rows: users } = await query(sqlGetUsername, [username]);
     return users[0] || null;
   }
 
@@ -140,6 +142,7 @@ class UserRepository {
       FROM credenciales
       WHERE id_usuario = $1
     `;
+
     const { rows: users } = await query(sqlCredByUserId, [id_usuario]);
     return users[0] || null;
   }
@@ -217,6 +220,7 @@ class UserRepository {
       `DELETE FROM usuarios WHERE id_usuario = $1`,
       [id_usuario]
     );
+
     return rowCount > 0;
   }
 }
