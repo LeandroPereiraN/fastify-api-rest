@@ -29,12 +29,10 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para realizar esta acción.');
       }
     }
-  }, async (req, res) => {//la hice async
+  }, async (req, res) => {
     const query = req.query
     const { nombre } = query;
 
-    //los hice asincronicos
-    
     if (!nombre) return await UserRepository.getUsers() as User[];
 
     return await UserRepository.getUsersByName(nombre) as User[];
@@ -73,9 +71,9 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para ver este usuario.');
       }
     }
-  },async (req, res) => {//la hice async
+  }, async (req, res) => {
     const { id_usuario } = req.params;
-    const user = await UserRepository.getUserById(id_usuario);//asincronicos 
+    const user = await UserRepository.getUserById(id_usuario);
     if (user && user.id_usuario !== undefined) {
       return user;
     }
@@ -113,14 +111,14 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para modificar este usuario.');
       }
     }
-  },async (req, res) => {//la hice async
+  }, async (req, res) => {
     const { id_usuario } = req.params;
     const { nombres } = req.body;
 
-    const oldUser = await UserRepository.getUserById(id_usuario);//la hice async
+    const oldUser = await UserRepository.getUserById(id_usuario);
     if (!oldUser) throw new NotFoundError();
 
-    await UserRepository.updateUser(id_usuario, { nombres });//la hice async
+    await UserRepository.updateUser(id_usuario, { nombres });
     res.status(204).send();
   })
 
@@ -148,9 +146,9 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
         throw new PermissionError('No tienes permisos para eliminar usuarios.');
       }
     }
-  },async (req, res) => {//la hice async
+  }, async (req, res) => {
     const { id_usuario } = req.params;
-    if (! await UserRepository.deleteUser(id_usuario)) {//la hice async
+    if (! await UserRepository.deleteUser(id_usuario)) {
       throw new NotFoundError();
     }
     res.status(204).send();

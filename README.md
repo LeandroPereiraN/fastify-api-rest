@@ -1,29 +1,23 @@
-# fastify-api-rest - Grupo 02  
+# Fastify API Rest - Grupo 02  
 
 ## Integrantes  
 - Leandro Pereira
 - Mauricio Segovia 
 - Alejandro Hernandez
 
----
-
 ## Instalación de Dependencias  
 1. Primero necesitamos tener **Node.js** para **windows** usando **volta** y **npm** instalado.  
-2. despues de clonar el repo , hacemos **npm install** (esto instalara todas las dependencias necesarias)
+2. despues de clonar el repo , hacemos **npm install** (esto instalará todas las dependencias necesarias)
 
----
-## Como "runner"  o ejecutar el proyecto
+## Levantar la base de datos de PostgreSQL con Docker
+Necesitamos tener Docker instalado. Después, se debe ejecutar el comando **docker compose up** en la raíz del proyecto.
+Esto iniciará la base de datos en el host y el puerto especificados en el **.env**
 
-/////////////cambiar despues
-- abrimos docker desktop
-- damos a compose up (click derecho en el archivo) en nuestro docker-compose-yml, deberia de levantar el contenedor 
-- en terminal (cmd preferentemente) ejecutamos el comando **npm run dev** (explicacion)
-
----
+## Levantar el proyecto
+Para levantar el proyecto debemos ejecutar el comando **npm run dev** en la raíz del proyecto.
 
 ## Resumenes de cosas echas
-
--Alejandro:
+- Alejandro:
 <details>
   <summary>Ver más info</summary>
   
@@ -58,12 +52,12 @@
   
 </details>
 
--Errores o dificultades:
+- Errores o dificultades:
 <details>
   <summary>Ver más info</summary>
 
   Se corrigió:
-  - Uso de async/await para no devolver promesas sin resolver. userroutes(borrar comentarios)
+  - Uso de async/await para no devolver promesas sin resolver.
 
   La mayoria de errores fueron con Typescript, que no reconocia los metodos o que se "olvida de los imports".
   Lo que mas dificulto fue el echo de hacer algo totalmente nuevo, como es la conexion de la base de datos con node 
@@ -71,36 +65,31 @@
 
 </details>
 
----
+- Leandro:
+<details>
+  <summary>Ver más info</summary>
 
--Leandro:
+  Generé la base del proyecto e implementé JWT con la autenticación por roles.
+</details>
+
+- Errores o dificultades:
+<details>
+  <summary>Ver más info</summary>
+
+  El Typescript anda cuando quiere.
+  En ocasiones da error el proyecto, al eliminar el los registers del **server.ts** y volverlos a poner funciona nuevamente.
+</details>
+
+- Mauricio:
 <details>
   <summary>Ver más info</summary>
 
   Aquí va la explicacion
 </details>
 
--Errores o dificultades:
+- Errores o dificultades:
 <details>
   <summary>Ver más info</summary>
 
   Aquí va la explicacion
 </details>
----
-
--Mauricio:
-
-<details>
-  <summary>Ver más info</summary>
-
-  Aquí va la explicacion
-</details>
-
--Errores o dificultades:
-<details>
-  <summary>Ver más info</summary>
-
-  Aquí va la explicacion
-</details>
-
----
