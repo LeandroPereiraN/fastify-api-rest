@@ -170,19 +170,32 @@ class UserRepository {
         [id_usuario, user.password]
       );
 
-      // Insert roles if provided, otherwise assign default 'user' role
+      console.log(user.roles);
       if (user.roles && user.roles.length > 0) {
+        for (const roleName of user.roles) {
+          const { rows: existingRole } = await query(
+            `SELECT id_rol FROM roles WHERE nombre = $1`,
+            [roleName]
+          );
+          if (!existingRole[0]) {
+            await query(
+              `INSERT INTO roles (nombre) VALUES ($1)`,
+              [roleName]
+            );
+          }
+        }
+
         for (const roleName of user.roles) {
           await query(
             `INSERT INTO usuarios_roles (id_usuario, id_rol)
-             SELECT $1, id_rol FROM roles WHERE nombre = $2`,
+             SELECT $1, r.id_rol FROM roles r WHERE r.nombre = $2`,
             [id_usuario, roleName]
           );
         }
       } else {
         await query(
           `INSERT INTO usuarios_roles (id_usuario, id_rol)
-           SELECT $1, id_rol FROM roles WHERE nombre = 'user'`,
+           SELECT $1, r.id_rol FROM roles r WHERE r.nombre = 'user'`,
           [id_usuario]
         );
       }
