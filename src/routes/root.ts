@@ -1,4 +1,4 @@
-import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
+import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 const rootRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     fastify.get('/', {
