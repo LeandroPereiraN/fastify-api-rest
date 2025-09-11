@@ -96,7 +96,7 @@ class UserRepository {
 
   static async getUserById(id_usuario: number): Promise<User | null> {
     const sqlUserById = `
-      SELECT U.*, json_agg(json_build_object('id_rol', R.id_rol, 'nombre', R.nombre)) AS roles
+      SELECT U.*, array_agg(R.nombre) AS roles
       FROM usuarios U
       JOIN usuarios_roles UR ON UR.id_usuario = U.id_usuario
       JOIN roles R ON R.id_rol = UR.id_rol
@@ -105,7 +105,6 @@ class UserRepository {
     `;
 
     const { rows: users } = await query(sqlUserById, [id_usuario]);
-    console.log(users);
     return users[0] || null;
   }
 

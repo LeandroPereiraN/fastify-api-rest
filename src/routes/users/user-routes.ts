@@ -25,7 +25,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       fastify.authenticate(req, res);
 
       const user = req.user as User;
-      if (!user || !user.roles || !user.roles.some(rol => rol.nombre === 'admin')) {
+      if (!user || !user.roles || !user.roles.some(rol => rol === 'admin')) {
         throw new PermissionError('No tienes permisos para realizar esta acción.');
       }
     }
@@ -64,7 +64,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
       const user = req.user as User;
       const { id_usuario } = req.params;
-      const isAdmin = user?.roles?.some(rol => rol.nombre === 'admin');
+      const isAdmin = user?.roles?.some(rol => rol === 'admin');
       const isSelf = user?.id_usuario == id_usuario;
 
       if (!isAdmin && !isSelf) {
@@ -104,7 +104,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
 
       const user = req.user as User;
       const { id_usuario } = req.params;
-      const isAdmin = user?.roles?.some(rol => rol.nombre === 'admin');
+      const isAdmin = user?.roles?.some(rol => rol === 'admin');
       const isSelf = user?.id_usuario === id_usuario;
 
       if (!isAdmin && !isSelf) {
@@ -142,7 +142,7 @@ const userRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
       fastify.authenticate(req, res);
 
       const user = req.user as User;
-      if (!user || !user.roles || !user.roles.some(rol => rol.nombre === 'admin')) {
+      if (!user || !user.roles || !user.roles.some(rol => rol === 'admin')) {
         throw new PermissionError('No tienes permisos para eliminar usuarios.');
       }
     }

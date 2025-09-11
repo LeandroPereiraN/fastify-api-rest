@@ -14,14 +14,6 @@ export const Credencial = Type.Object({
 });
 export type Credencial = Static<typeof Credencial>;
 
-export const Rol = Type.Object({
-  id_rol: Type.Integer(),
-  nombre: Type.String({ minLength: 1 })
-}, {
-  description: "Rol de usuario."
-});
-export type Rol = Static<typeof Rol>;
-
 export const UsuarioRol = Type.Object({
   id_usuario: Type.Integer(),
   id_rol: Type.Integer()
@@ -44,7 +36,7 @@ export const User = Type.Object({
   edad: Type.Integer({ minimum: 0, maximum: 100 }),
   sexo: SexoEnum,
   foto_url: Type.Optional(Type.String({ maxLength: 520 })),
-  roles: Type.Array(Rol)
+  roles: Type.Array(Type.String())
 }, {
   description: "Usuario del sistema."
 });
